@@ -15,12 +15,6 @@
         "description": "The name of the existing subnet in the VNET"
       }
     },
-    "adAvailabilitySetName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of existing availability set for the VM"
-      }
-    },
     "vmName": {
       "type": "string",
       "metadata": {
@@ -50,7 +44,7 @@
       "metadata": {
         "description": "The size of the VM Created"
       },
-      "defaultValue": "Standard_DS1_v2"
+      "defaultValue": "Standard_DS2_v3"
     },
     "imageSKU": {
       "type": "string",
@@ -66,7 +60,7 @@
     },
     "diskType": {
       "type": "string",
-      "defaultValue": "StandardSSD_LRS",
+      "defaultValue": "Standard_LRS",
       "allowedValues": [
         "StandardSSD_LRS",
         "Standard_LRS",
@@ -99,7 +93,7 @@
     "vmNicName": "[concat(parameters('vmName'),'Nic')]",
     "vmDataDisk": "[concat(parameters('vmName'),'-managed-DataDisk1')]",
     "vmOSDisk": "[concat(parameters('vmName'),'-managed-OSDisk')]",
-    "vmDataDiskSize": 10,
+    "vmDataDiskSize": 64,
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
 
@@ -159,9 +153,6 @@
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('VMSize')]"
-        },
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]"
         },
         "osProfile": {
           "computerName": "[parameters('vmName')]",
