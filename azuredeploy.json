@@ -2,36 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "createChildDomain": {
-      "type": "bool",
-      "metadata": {
-        "description": "Do you want a child domain? If false, the parameters for the child domain are ignored. "
-      },
-      "defaultValue": true
-    },
     "createSecondDc": {
       "type": "bool",
       "metadata": {
         "description": "Do you want a second DC in each domain? If false: parameters for DC2 and DC4 are ignored. "
       },
-      "defaultValue": false
+      "defaultValue": true
     },
     "DomainName": {
       "type": "string",
       "metadata": {
         "description": "Full FQDN name for the forest root domain."
       },
-      "defaultValue": "contoso.com",
+      "defaultValue": "testdomain.com",
       "minLength": 4
-    },
-    "ChildDomainName": {
-      "type": "string",
-      "metadata": {
-        "description": "SHORT name for the child domain. New AD trees are not allowed."
-      },
-      "defaultValue": "child",
-      "minLength": 2,
-      "maxLength": 15
     },
     "adminUsername": {
       "type": "string",
@@ -69,7 +53,7 @@
       "metadata": {
         "description": "The size and type of the VM. *_DS* or *s types support Premium Disks. Hint: the DS* series seem most reliable for this complex template."
       },
-      "defaultValue": "Standard_DS1_v2"
+      "defaultValue": "Standard_DS2_v2"
     },
     "imageSKU": {
       "type": "string",
@@ -84,7 +68,7 @@
     },
     "diskType": {
       "type": "string",
-      "defaultValue": "Premium_LRS",
+      "defaultValue": "Standard_LRS",
       "allowedValues": [
         "StandardSSD_LRS",
         "Standard_LRS",
@@ -138,7 +122,7 @@
       "metadata": {
         "description": "The computer name of the first DC of the root domain."
       },
-      "defaultValue": "rootdc1",
+      "defaultValue": "dc01",
       "minLength": 2,
       "maxLength": 15
     },
@@ -154,7 +138,7 @@
       "metadata": {
         "description": "The computer name of the second DC of the root domain."
       },
-      "defaultValue": "rootdc2",
+      "defaultValue": "dc02",
       "minLength": 2,
       "maxLength": 15
     },
@@ -165,16 +149,16 @@
       },
       "defaultValue": "10.0.0.5"
     },
-    "ChildDC3Name": {
+    "Client3Name": {
       "type": "string",
       "metadata": {
         "description": "The computer name of the first DC of the CHILD domain."
       },
-      "defaultValue": "childdc3",
+      "defaultValue": "Client3-VM",
       "minLength": 2,
       "maxLength": 15
     },
-    "ChildDC3IPAddress": {
+    "Client3IPAddress": {
       "type": "string",
       "metadata": {
         "description": "The IP address of the first DC of the CHILD domain."
@@ -208,8 +192,7 @@
       "type": "string",
       "metadata": {
         "description": "The location of resources such as templates and DSC modules that the script depends on. No need to change unless you copy or fork this template."
-      },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-create-ad-forest-with-subdomain/"
+      }
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -222,15 +205,12 @@
   "variables": {
     "adNSGName": "[concat(parameters('adSubnetName'),'NSG')]",
     "adAvailabilitySetNameRoot": "AvailSetRoot",
-    "adAvailabilitySetNameChild": "AvailSetChild",
-
     "firstVMTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/CreateAndPrepnewVM.json',parameters('_artifactsLocationSasToken')))]",
     "nextVMTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/CreateAndPrepnewVM.json',parameters('_artifactsLocationSasToken')))]",
     "vnetTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/vnet.json',parameters('_artifactsLocationSasToken')))]",
     "vnetwithDNSTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/vnet-with-dns-server.json',parameters('_artifactsLocationSasToken')))]",
     "configureADNextDCTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/configureADNextDC.json',parameters('_artifactsLocationSasToken')))]",
     "createForestTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/createForest.json',parameters('_artifactsLocationSasToken')))]",
-    "createChildDomainTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/createChildDomain.json',parameters('_artifactsLocationSasToken')))]",
     "nextDCConfigurationModulesURL": "[uri(parameters('_artifactsLocation'), concat('DSC/ConfigureADNextDC.ps1.zip',parameters('_artifactsLocationSasToken')))]",
     "nextDCConfigurationFunction": "ConfigureADNextDC.ps1\\ConfigureADNextDC"
   },
@@ -239,20 +219,6 @@
       "name": "[variables('adAvailabilitySetNameRoot')]",
       "type": "Microsoft.Compute/availabilitySets",
       "apiVersion": "2018-06-01",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Aligned"
-      },
-      "properties": {
-        "PlatformUpdateDomainCount": 3,
-        "PlatformFaultDomainCount": 2
-      }
-    },
-    {
-      "name": "[variables('adAvailabilitySetNameChild')]",
-      "type": "Microsoft.Compute/availabilitySets",
-      "apiVersion": "2018-06-01",
-      "condition": "[parameters('createChildDomain')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Aligned"
@@ -418,11 +384,9 @@
     {
       "name": "CreateADVM3",
       "type": "Microsoft.Resources/deployments",
-      "condition": "[parameters('createChildDomain')]",
       "apiVersion": "2018-08-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments','CreateVNET')]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetNameChild'))]"
+        "[resourceId('Microsoft.Resources/deployments','CreateVNET')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -437,14 +401,11 @@
           "subnetName": {
             "value": "[parameters('adSubnetName')]"
           },
-          "adAvailabilitySetName": {
-            "value": "[variables('adAvailabilitySetNameChild')]"
-          },
           "vmName": {
-            "value": "[parameters('ChildDC3Name')]"
+            "value": "[parameters('Client3Name')]"
           },
           "vmIpAddress": {
-            "value": "[parameters('ChildDC3IPAddress')]"
+            "value": "[parameters('Client3IPAddress')]"
           },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"
@@ -463,52 +424,6 @@
           },
           "location": {
             "value": "[parameters('location')]"
-          },
-          "_artifactsLocation": {
-            "value": "[parameters('_artifactsLocation')]"
-          },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "CreateChildDomain",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-08-01",
-      "condition": "[parameters('createChildDomain')]",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/CreateADVM3",
-        "Microsoft.Resources/deployments/CreateForest"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('createChildDomainTemplateUri')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "vmName": {
-            "value": "[parameters('ChildDC3Name')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "parentDomainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "childDomainName": {
-            "value": "[parameters('ChildDomainName')]"
-          },
-          "DNSForwarder": {
-            "value": "[parameters('RootDC1IPAddress')]"
           },
           "_artifactsLocation": {
             "value": "[parameters('_artifactsLocation')]"
@@ -583,8 +498,7 @@
       "apiVersion": "2018-08-01",
       "condition": "[parameters('createSecondDc')]",
       "dependsOn": [
-        "Microsoft.Resources/deployments/CreateADVM2",
-        "Microsoft.Resources/deployments/CreateChildDomain"
+        "Microsoft.Resources/deployments/CreateADVM2"
       ],
       "properties": {
         "mode": "Incremental",
@@ -624,10 +538,9 @@
       "name": "CreateADVM4",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-08-01",
-      "condition": "[and(parameters('createSecondDc'), parameters('createChildDomain'))]",
+      "condition": "[parameters('createSecondDc')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments','CreateVNET')]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetNameChild'))]"
+        "[resourceId('Microsoft.Resources/deployments','CreateVNET')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -641,9 +554,6 @@
           },
           "subnetName": {
             "value": "[parameters('adSubnetName')]"
-          },
-          "adAvailabilitySetName": {
-            "value": "[variables('adAvailabilitySetNameChild')]"
           },
           "vmName": {
             "value": "[parameters('ChildDC4Name')]"
@@ -681,11 +591,10 @@
     {
       "name": "ConfiguringChildDC4",
       "type": "Microsoft.Resources/deployments",
-      "condition": "[and(parameters('createSecondDc'), parameters('createChildDomain'))]",
+      "condition": "[parameters('createSecondDc')]",
       "apiVersion": "2018-08-01",
       "dependsOn": [
-        "Microsoft.Resources/deployments/CreateADVM4",
-        "Microsoft.Resources/deployments/CreateChildDomain"
+        "Microsoft.Resources/deployments/CreateADVM4"
       ],
       "properties": {
         "mode": "Incremental",
@@ -707,10 +616,10 @@
             "value": "[parameters('adminPassword')]"
           },
           "domainName": {
-            "value": "[concat(parameters('childDomainName'), '.', parameters('domainName'))]"
+            "value": "[concat('.',parameters('domainName'))]"
           },
           "DNSServer": {
-            "value": "[parameters('ChildDC3IPAddress')]"
+            "value": "[parameters('Client3IPAddress')]"
           },
           "adNextDCConfigurationFunction": {
             "value": "[variables('nextDCConfigurationFunction')]"
@@ -726,7 +635,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-08-01",
       "dependsOn": [
-        "Microsoft.Resources/deployments/CreateChildDomain"
       ],
       "properties": {
         "mode": "Incremental",
