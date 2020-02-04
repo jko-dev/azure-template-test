@@ -193,7 +193,7 @@
       "metadata": {
         "description": "The location of resources such as templates and DSC modules that the script depends on. No need to change unless you copy or fork this template."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jko-dev/azure-template-test/master/azuredeploy.json"
+      "defaultValue": "https://raw.githubusercontent.com/jko-dev/azure-template-test/master/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
