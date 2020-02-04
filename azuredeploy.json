@@ -205,7 +205,7 @@
   },
   "variables": {
     "adNSGName": "[concat(parameters('adSubnetName'),'NSG')]",
-    "adAvailabilitySetNameRoot": "AvailSetRoot",
+    "adAvailabilitySetName": "AvailSetRoot",
     "firstVMTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/CreateAndPrepnewVM.json',parameters('_artifactsLocationSasToken')))]",
     "nextVMTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/CreateAndPrepnewVM.json',parameters('_artifactsLocationSasToken')))]",
     "vnetTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nested/vnet.json',parameters('_artifactsLocationSasToken')))]",
@@ -217,7 +217,7 @@
   },
   "resources": [
     {
-      "name": "[variables('adAvailabilitySetNameRoot')]",
+      "name": "[variables('adAvailabilitySetName')]",
       "type": "Microsoft.Compute/availabilitySets",
       "apiVersion": "2018-06-01",
       "location": "[parameters('location')]",
@@ -290,7 +290,7 @@
       "apiVersion": "2018-08-01",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments','CreateVNET')]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetNameRoot'))]"
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -306,7 +306,7 @@
             "value": "[parameters('adSubnetName')]"
           },
           "adAvailabilitySetName": {
-            "value": "[variables('adAvailabilitySetNameRoot')]"
+            "value": "[variables('adAvailabilitySetName')]"
           },
           "vmName": {
             "value": "[parameters('RootDC1Name')]"
@@ -442,7 +442,7 @@
       "condition": "[parameters('createSecondDc')]",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments','CreateVNET')]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetNameRoot'))]"
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -458,7 +458,7 @@
             "value": "[parameters('adSubnetName')]"
           },
           "adAvailabilitySetName": {
-            "value": "[variables('adAvailabilitySetNameRoot')]"
+            "value": "[variables('adAvailabilitySetName')]"
           },
           "vmName": {
             "value": "[parameters('RootDC2Name')]"
