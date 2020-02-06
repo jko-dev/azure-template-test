@@ -508,8 +508,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-08-01",
       "dependsOn": [
-        "Microsoft.Resources/deployments/CreateADVM1",
-
+        "Microsoft.Resources/deployments/CreateADVM1"
       ],
       "properties": {
         "mode": "Incremental",
