@@ -149,16 +149,16 @@
       },
       "defaultValue": "10.0.0.5"
     },
-    "Client3Name": {
+    "ClientName": {
       "type": "string",
       "metadata": {
         "description": "The computer name of the first DC of the CHILD domain."
       },
-      "defaultValue": "Client3-VM",
+      "defaultValue": "Client-VM",
       "minLength": 2,
       "maxLength": 15
     },
-    "Client3IPAddress": {
+    "ClientIPAddress": {
       "type": "string",
       "metadata": {
         "description": "The IP address of the first DC of the CHILD domain."
@@ -359,12 +359,11 @@
         "Microsoft.Resources/deployments/CreateForest",
         "Microsoft.Resources/deployments/UpdateVNet",
         "Microsoft.Resources/deployments/ConfiguringrootDC2"
-
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('firstVMTemplateUri')]",
+          "uri": "[variables('ClientVMTemplateUri')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -375,10 +374,13 @@
             "value": "[parameters('adSubnetName')]"
           },
           "vmName": {
-            "value": "[parameters('Client3Name')]"
+            "value": "[parameters('ClientName')]"
           },
           "vmIpAddress": {
-            "value": "[parameters('Client3IPAddress')]"
+            "value": "[parameters('ClientIPAddress')]"
+          },
+          "domainToJoin": {
+            "value": "[parameters('DomainName')]"
           },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"
@@ -386,8 +388,17 @@
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
           },
+          "vmUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "vmPassword": {
+            "value": "[parameters('adminPassword')]"
+          },          
           "vmSize": {
-            "value": "[parameters('VMSize')]"
+            "value": "Standard_A2_v2"
+          },
+          "vmCount": {
+            "value": 2
           },
           "diskType": {
             "value": "[parameters('diskType')]"
