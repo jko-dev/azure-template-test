@@ -154,7 +154,7 @@
       "metadata": {
         "description": "The computer name of the first DC of the CHILD domain."
       },
-      "defaultValue": "Client-VM",
+      "defaultValue": "ClientVM",
       "minLength": 2,
       "maxLength": 15
     },
