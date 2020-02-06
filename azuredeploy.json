@@ -509,7 +509,7 @@
       "apiVersion": "2018-08-01",
       "dependsOn": [
         "Microsoft.Resources/deployments/CreateADVM1",
-        "Microsoft.Network/networkSecurityGroups/ [variables('adNSGName')]"
+
       ],
       "properties": {
         "mode": "Incremental",
