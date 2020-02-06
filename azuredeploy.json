@@ -376,9 +376,6 @@
           "vmName": {
             "value": "[parameters('ClientName')]"
           },
-          "vmIpAddress": {
-            "value": "[parameters('ClientIPAddress')]"
-          },
           "domainToJoin": {
             "value": "[parameters('DomainName')]"
           },
@@ -399,21 +396,6 @@
           },
           "vmCount": {
             "value": 2
-          },
-          "diskType": {
-            "value": "[parameters('diskType')]"
-          },
-          "imageSKU": {
-            "value": "[parameters('imageSKU')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "_artifactsLocation": {
-            "value": "[parameters('_artifactsLocation')]"
-          },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
           }
         }
       }
