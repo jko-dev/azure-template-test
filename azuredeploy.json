@@ -392,7 +392,7 @@
             "value": "[parameters('adminPassword')]"
           },          
           "vmSize": {
-            "value": "Standard_A2_v2"
+            "value": "Standard_DS1_v2"
           },
           "vmCount": {
             "value": 2
