@@ -84,7 +84,7 @@
     "apiVersion": "2015-06-15",
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "publicIPName": "[concat(parameters('vmName'),'Pip')]",
-    "vnetID": "[resourceId('testdomain', 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "vnetID": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]"
   },
   "resources": [
