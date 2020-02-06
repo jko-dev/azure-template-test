@@ -358,7 +358,7 @@
         "[resourceId('Microsoft.Resources/deployments','CreateVNET')]",
         "Microsoft.Resources/deployments/CreateForest",
         "Microsoft.Resources/deployments/UpdateVNet",
-        "Microsoft.Resources/deployments/ConfigureRootDC2"
+        "Microsoft.Resources/deployments/ConfiguringrootDC2"
 
       ],
       "properties": {
@@ -509,7 +509,7 @@
       "apiVersion": "2018-08-01",
       "dependsOn": [
         "Microsoft.Resources/deployments/CreateADVM1",
-        "[variables('adNSGName')]"
+        "Microsoft.Network/networkSecurityGroups/ [variables('adNSGName')]"
       ],
       "properties": {
         "mode": "Incremental",
