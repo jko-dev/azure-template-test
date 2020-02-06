@@ -152,9 +152,9 @@
     "ClientName": {
       "type": "string",
       "metadata": {
-        "description": "The computer name of the first DC of the CHILD domain."
+        "description": "The computer name of the clients."
       },
-      "defaultValue": "ClientVM",
+      "defaultValue": "clientvm",
       "minLength": 2,
       "maxLength": 15
     },
